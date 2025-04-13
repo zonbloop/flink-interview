@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.log
+.env
+*.db
+*.jar
+.idea/
+.vscode/
+*.iml
+.DS_Store
+docker-volume-data/
