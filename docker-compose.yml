@@ -55,14 +55,88 @@ services:
     container_name: data-generator
     depends_on:
       - kafka-setup
+      - kafka
     environment:
       - KAFKA_BROKER=kafka:9092
       - IMPRESSION_TOPIC=ad-impressions
       - CLICK_TOPIC=ad-clicks
       - EVENT_RATE=50  # Events per second
       - CLICK_RATIO=0.1  # 10% of impressions get clicks
+    command: >
+      bash -c "
+        echo 'Waiting before starting generator...' &&
+        sleep 20 &&
+        python generate_events.py
+      "
     networks:
       - flink-network
+
+  # Flink
+  flink-jobmanager:
+    build:
+      context: ./flink
+      dockerfile: Dockerfile
+    container_name: flink-jobmanager
+    depends_on:
+      - postgres
+    command: jobmanager
+    ports:
+      - "8081:8081"  # Flink web UI
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    networks:
+      - flink-network
+  
+  flink-taskmanager:
+    build:
+      context: ./flink
+      dockerfile: Dockerfile
+    container_name: flink-taskmanager
+    depends_on:
+      - flink-jobmanager
+    command: taskmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=2  
+    networks:
+      - flink-network
+
+  # Postgres DB
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    environment:
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset
+      POSTGRES_DB: ad_analytics
+
+    volumes:
+      - ./dashboard/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - flink-network
+  
+  # Dashboard in superset
+  superset:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: superset
+    ports:
+      - "8088:8088"
+    environment:
+      - SUPERSET_LOAD_EXAMPLES=no
+      - SUPERSET_SECRET_KEY=mysecretkey
+      - DATABASE_URL=postgresql+psycopg2://superset:superset@postgres:5432/ad_analytics
+    depends_on:
+      - postgres
+    volumes:
+      - ./dashboard/superset_init.sh:/app/superset_init.sh
+    command: ["/bin/bash", "/app/superset_init.sh"]
+    networks:
+      - flink-network
+
 
 networks:
   flink-network:
