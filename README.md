@@ -1,7 +1,3 @@
-Absolutely. Here's a cleaner, more professional version of the `README.md` with a more natural tone, no emojis, and a clear focus on explaining the system and how to use it.
-
----
-
 # Real-Time Ad Analytics with Flink, Kafka, and Superset
 
 This project showcases a real-time analytics pipeline using modern streaming technologies. The system processes simulated ad impression and click data, computes metrics such as click-through rate (CTR) and user engagement, and visualizes the results through a Superset dashboard.
