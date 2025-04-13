@@ -12,4 +12,4 @@ COPY generate_events.py .
 # Make script executable
 RUN chmod +x generate_events.py
 
-CMD ["python", "generate_events.py"]
+#CMD ["python", "generate_events.py"]

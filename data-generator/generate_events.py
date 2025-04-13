@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 from kafka import KafkaProducer
+from time import sleep
 
 # Configuration from environment variables
 KAFKA_BROKER = os.environ.get("KAFKA_BROKER", "kafka:9092")
@@ -29,12 +30,18 @@ impression_buffer: List[Dict[str, Any]] = []
 MAX_BUFFER_SIZE = 1000
 
 def create_kafka_producer() -> KafkaProducer:
-    """Creates and returns a Kafka producer"""
-    return KafkaProducer(
-        bootstrap_servers=KAFKA_BROKER,
-        value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-        key_serializer=lambda v: v.encode('utf-8') if v else None
-    )
+    """Retries Kafka producer creation until broker is ready"""
+    for i in range(20):
+        try:
+            return KafkaProducer(
+                bootstrap_servers=KAFKA_BROKER,
+                value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+                key_serializer=lambda v: v.encode('utf-8') if v else None
+            )
+        except kafka.errors.NoBrokersAvailable:
+            print(f"Kafka not ready yet, retrying...")
+            sleep(5)
+    raise Exception("Kafka not reachable after 20 attempts")
 
 def generate_impression() -> Dict[str, Any]:
     """Generates a random ad impression event"""
