@@ -17,12 +17,11 @@ This project showcases a real-time analytics pipeline using modern streaming tec
 .
 ├── dashboard/              # Superset dashboard export
 │   └── dashboard.zip
+│   └── init.sql            # SQL initialization scripts
 ├── data-generator/         # Kafka event producer
 │   └── generate_events.py
 ├── flink/                  # Flink job (PyFlink)
 │   └── ad_metrics_job.py
-├── superset_init/          # SQL initialization scripts
-│   └── init.sql
 ├── docker-compose.yml      # All-in-one service setup
 ├── init.sh                 # One command to build, run and deploy
 └── README.md
