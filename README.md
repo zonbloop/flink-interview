@@ -68,13 +68,14 @@ The output of both aggregations is written directly to PostgreSQL tables: `ctr_b
 
    - Open your browser at: [http://localhost:8088](http://localhost:8088)
    - Login credentials:
-     - Username: `superset`
-     - Password: `superset`
+     - Username: `admin`
+     - Password: `admin`
 
 3. **Import the Superset dashboard**
 
    - Go to `Settings > Import/Export`.
    - Upload the file `dashboard/dashboard.zip`.
+   - The password by default is `superset`.
 
 4. **Optional: Enable auto-refresh**
 
